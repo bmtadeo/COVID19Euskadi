@@ -1,0 +1,1 @@
+1. Para hacer funcionar el bot, hay que añadir el token de un bot de telegram en la variable token.
