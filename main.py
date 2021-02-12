@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from emoji import emojize
 
-token = 'TOKEN'
+token = '1606215435:AAGciyTG0jI0jKyyx7_xNErjCh2jaZzaPzE'
 bot = telebot.TeleBot(token)
 
 urlIncidenciaEuskadi = 'https://www.geo.euskadi.eus/geoeuskadi/rest/services/COVID19/COVID19_v2/MapServer/2/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&resultOffset=0&resultRecordCount=1000'
@@ -33,6 +33,7 @@ def comandos(message):
               "- /grafica: Gráfica evolutiva de los datos de Euskadi\n" \
               "- /datoseuskadi: Muestra los datos de Euskadi\n" \
               "- /datosprovincias: Muestra los datos de Euskadi\n" \
+              "- /datosmunicipio: Muestra los datos de un municipio de Euskadi. Ej: /datosmunicipios Bilbao, /datosmunicipios Vitoria-Gasteiz\n" \
               "- /datoscapitales: Muestra los datos de las capitales de provincia\n"
     chat_id = message.chat.id
     tiempo = datetime.datetime.now()
@@ -182,6 +183,36 @@ def grafica(message):
     tiempo = datetime.datetime.now()
     bot.send_photo(chat_id, photo)
     print('INFO ' + str(tiempo) + ': Mensaje /grafica enviado correctamente.')
+
+@bot.message_handler(commands=['datosmunicipio'])
+def datosmunicipio(message):
+    # 1. Extraer el municipio del comando
+    municipio = extract_arg(message.text)
+    if municipio != []:
+        responsePositivosCiudades = requests.get(urlPositivosCiudades)
+        JSONPositivosCiudades = json.loads(responsePositivosCiudades.content)
+        i =0
+        for i in JSONPositivosCiudades["features"]:
+            if i["attributes"]["UDALERRIA___MUNICIPIO"] == municipio[0]:
+                print(i["attributes"]["UDALERRIA___MUNICIPIO"])
+                casos = i["attributes"]["NUEVOS_POS"]
+
+        # 4. Crear mensaje
+        bot_msg = "*Nuevos positvos COVID-19 en: " + municipio[0] + "*\n" \
+             "" + emojize(":plus:") + " " + str(casos) + "\n"
+        chat_id = message.chat.id
+        bot.send_message(chat_id, bot_msg, parse_mode='Markdown')
+        tiempo = datetime.datetime.now()
+        print('INFO ' + str(tiempo) + ': Mensaje /datosmunicipio enviado correctamente.')
+    else:
+        bot_msg = "*Por favor, inserta un municipio*"
+        chat_id = message.chat.id
+        bot.send_message(chat_id, bot_msg, parse_mode='Markdown')
+        tiempo = datetime.datetime.now()
+        print('WARN ' + str(tiempo) + ': Mensaje /datosmunicipio enviado sin municipio.')
+def extract_arg(arg):
+    return arg.split()[1:]
+
 bot.polling()
 
 
