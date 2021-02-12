@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from emoji import emojize
 
-token = 'TOKEN'
+token = '1606215435:AAGciyTG0jI0jKyyx7_xNErjCh2jaZzaPzE'
 bot = telebot.TeleBot(token)
 
 urlIncidenciaEuskadi = 'https://www.geo.euskadi.eus/geoeuskadi/rest/services/COVID19/COVID19_v2/MapServer/2/query?f=json&where=1%3D1&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&resultOffset=0&resultRecordCount=1000'
@@ -194,9 +194,12 @@ def datosmunicipio(message):
         i =0
         for i in JSONPositivosCiudades["features"]:
             if i["attributes"]["UDALERRIA___MUNICIPIO"] == municipio[0]:
-                print(i["attributes"]["UDALERRIA___MUNICIPIO"])
                 casos = i["attributes"]["NUEVOS_POS"]
-
+                break
+            elif i["attributes"]["UDALERRIA___MUNICIPIO"] != municipio[0]:
+                casos = 0
+            else:
+                casos = 0
         # 4. Crear mensaje
         bot_msg = "*Nuevos positvos COVID-19 en: " + municipio[0] + "*\n" \
              "" + emojize(":plus:") + " " + str(casos) + "\n"
